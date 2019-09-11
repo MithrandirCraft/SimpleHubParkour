@@ -1,0 +1,11 @@
+name: SimpleHubParkour
+version: 1.0-SNAPSHOT
+main: es.mithrandircraft.simplehubparkour.SimpleHubParkour
+api-version: 1.13
+authors: [__Mithrandir__]
+description: Create a simple parkour for your network hub.
+website: www.mithrandircraft.es
+commands:
+  SHP:
+    description: Can reload the plugin if specified with reload parameter.
+    aliases: [SimpleHubParkour]
