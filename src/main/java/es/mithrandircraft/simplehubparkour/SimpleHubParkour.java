@@ -2,6 +2,7 @@ package es.mithrandircraft.simplehubparkour;
 
 import es.mithrandircraft.simplehubparkour.commands.SHP;
 import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,7 +17,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public final class SimpleHubParkour extends JavaPlugin implements Listener {
@@ -26,6 +26,10 @@ public final class SimpleHubParkour extends JavaPlugin implements Listener {
 
     //Time format:
     SimpleDateFormat sdf = new SimpleDateFormat("mm:ss");
+
+    //Exit barrier stack configuration:
+    ItemStack barrier;
+    ItemMeta barrierMeta;
 
     @Override
     public void onEnable() {
@@ -42,6 +46,11 @@ public final class SimpleHubParkour extends JavaPlugin implements Listener {
         //Runnables:
         SessionsRunnable();
 
+        //Exit barrier stack initialization:
+        barrier = new ItemStack(Material.BARRIER, 1);
+        barrierMeta = barrier.getItemMeta();
+        barrierMeta.setDisplayName(ChatColor.YELLOW + getConfig().getString("ExitBarrierName"));
+        barrier.setItemMeta(barrierMeta);
     }
 
     @Override
@@ -79,11 +88,7 @@ public final class SimpleHubParkour extends JavaPlugin implements Listener {
                             sessions.remove(entry.getKey());
 
                             //Remove exit barrier from player's hotbar:
-                            ItemStack b = new ItemStack(Material.BARRIER, 1);
-                            ItemMeta m = b.getItemMeta();
-                            m.setDisplayName(ChatColor.YELLOW + getConfig().getString("ExitBarrierName"));
-                            b.setItemMeta(m);
-                            getServer().getPlayer(entry.getKey()).getInventory().removeItem(b);
+                            getServer().getPlayer(entry.getKey()).getInventory().removeItem(barrier);
                         }
                     }
                 }
@@ -92,8 +97,9 @@ public final class SimpleHubParkour extends JavaPlugin implements Listener {
     }
 
     @EventHandler
-    public void OnParkourPlateSteppedEvent(PlayerInteractEvent ev) {
-        if(Objects.requireNonNull(ev.getClickedBlock()).getType() == Material.HEAVY_WEIGHTED_PRESSURE_PLATE) //Iron plate
+    public void InteractionEvent(PlayerInteractEvent ev) {
+        Block b = ev.getClickedBlock();
+        if(b != null && b.getType() == Material.HEAVY_WEIGHTED_PRESSURE_PLATE) //Iron plate
         {
             ParkourSession s = sessions.get(ev.getPlayer().getName());
 
@@ -106,11 +112,7 @@ public final class SimpleHubParkour extends JavaPlugin implements Listener {
                     //Add player to parkour sessions:
                     sessions.put(ev.getPlayer().getName(), new ParkourSession(new Location(ev.getClickedBlock().getWorld(), getConfig().getLong("FirstSpawnX"), getConfig().getLong("FirstSpawnY"), getConfig().getLong("FirstSpawnZ"))));
                     //Add exit barrier to player's hotbar:
-                    ItemStack b = new ItemStack(Material.BARRIER, 1);
-                    ItemMeta m = b.getItemMeta();
-                    m.setDisplayName(ChatColor.YELLOW + getConfig().getString("ExitBarrierName"));
-                    b.setItemMeta(m);
-                    ev.getPlayer().getInventory().setItem(8, b);
+                    ev.getPlayer().getInventory().setItem(8, barrier);
                 }
             }
             //End plate coords check:
@@ -131,15 +133,11 @@ public final class SimpleHubParkour extends JavaPlugin implements Listener {
                     sessions.remove(ev.getPlayer().getName());
 
                     //Remove exit barrier from player's hotbar:
-                    ItemStack b = new ItemStack(Material.BARRIER, 1);
-                    ItemMeta m = b.getItemMeta();
-                    m.setDisplayName(ChatColor.YELLOW + getConfig().getString("ExitBarrierName"));
-                    b.setItemMeta(m);
-                    ev.getPlayer().getInventory().removeItem(b);
+                    ev.getPlayer().getInventory().removeItem(barrier);
                 }
             }
         }
-        else if(Objects.requireNonNull(ev.getClickedBlock()).getType() == Material.LIGHT_WEIGHTED_PRESSURE_PLATE) //Gold plate
+        else if(b != null && b.getType() == Material.LIGHT_WEIGHTED_PRESSURE_PLATE) //Gold plate
         {
             ParkourSession s = sessions.get(ev.getPlayer().getName());
             if (s != null) //Save spawnpoint
@@ -153,19 +151,16 @@ public final class SimpleHubParkour extends JavaPlugin implements Listener {
         }
 
         //Right click while holding barrier:
-        if(ev.getPlayer().getItemOnCursor().getType() == Material.BARRIER)
+        if(ev.getPlayer().getItemOnCursor().equals(barrier) && (ev.getAction() == Action.RIGHT_CLICK_AIR || ev.getAction() == Action.RIGHT_CLICK_BLOCK))
         {
             ParkourSession s = sessions.get(ev.getPlayer().getName());
             if (s != null) {
-                if(ev.getAction() == Action.RIGHT_CLICK_AIR || ev.getAction() == Action.RIGHT_CLICK_BLOCK)
-                {
-                    //Remove barrier item:
-                    ev.getPlayer().getInventory().removeItem(new ItemStack(Material.BARRIER, 1));
-                    //Send to first spawn:
-                    ev.getPlayer().teleport(new Location(ev.getPlayer().getWorld(), getConfig().getLong("FirstSpawnX"), getConfig().getLong("FirstSpawnY"), getConfig().getLong("FirstSpawnZ")));
-                    //Remove player from parkour sessions:
-                    sessions.remove(ev.getPlayer().getName());
-                }
+                //Remove barrier item:
+                ev.getPlayer().getInventory().removeItem(barrier);
+                //Send to first spawn:
+                ev.getPlayer().teleport(new Location(ev.getPlayer().getWorld(), getConfig().getLong("FirstSpawnX"), getConfig().getLong("FirstSpawnY"), getConfig().getLong("FirstSpawnZ")));
+                //Remove player from parkour sessions:
+                sessions.remove(ev.getPlayer().getName());
             }
         }
     }

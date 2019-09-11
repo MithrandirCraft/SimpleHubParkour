@@ -7,11 +7,12 @@
 #    Only one single parkour can be made in a server, with infinite save points, for simplicity.
 #------------------------------------------------------------------------------------------------------
 
-#Air should be on the list, since the plugin checks what block is underneath the player.
+#The default values should be on the list, since the plugin checks what block is underneath the player.
+#Just add your own additional blocks for the parkour course. All other blocks will cause players to respawn.
 ParkourValidBlocks:
   - 'AIR'
-  - 'STONE'
-  - 'GRASS_PATH'
+  - 'HEAVY_WEIGHTED_PRESSURE_PLATE'
+  - 'LIGHT_WEIGHTED_PRESSURE_PLATE'
 
 #Add 0.5 for center of your block coordinates. You can find exact block coordinates with f3, but you'll probably want one block higher in this case.
 FirstSpawnX: 0.5
