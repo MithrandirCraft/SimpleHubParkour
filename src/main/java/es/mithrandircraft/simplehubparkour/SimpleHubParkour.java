@@ -4,6 +4,7 @@ import es.mithrandircraft.simplehubparkour.commands.SHP;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -55,7 +56,33 @@ public final class SimpleHubParkour extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
+        for (HashMap.Entry<String, ParkourSession> entry : sessions.entrySet()) //Clear parkour sessions
+        {
+            TerminateParkourSession(getServer().getPlayer(entry.getKey()));
+        }
+    }
 
+    public void StartParkourSession(Player p, PlayerInteractEvent e)
+    {
+        //Disable flight for player:
+        p.setAllowFlight(false);
+        getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "lp user " + p.getName() + "permission set -essentials.fly");
+        //Add player to parkour sessions:
+        sessions.put(p.getName(), new ParkourSession(new Location(e.getClickedBlock().getWorld(), getConfig().getLong("FirstSpawnX"), getConfig().getLong("FirstSpawnY"), getConfig().getLong("FirstSpawnZ"))));
+        //Add exit barrier to player's hotbar:
+        p.getInventory().setItem(8, barrier);
+    }
+
+    public void TerminateParkourSession(Player p)
+    {
+        //Allow flight:
+        getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "lp user " + p.getName() + "permission unset -essentials.fly");
+        //Remove barrier item:
+        p.getInventory().removeItem(barrier);
+        if(p.getEquipment().getHelmet() == barrier) p.getEquipment().setHelmet(null);
+        if(p.getEquipment().getItemInOffHand() == barrier) p.getEquipment().setItemInOffHand(null);
+        //Remove player from parkour sessions:
+        sessions.remove(p.getName()); //Player removed from hashmap if left server
     }
 
     public void SessionsRunnable() //Performs sessions HashMap updates at scheduled time
@@ -109,10 +136,7 @@ public final class SimpleHubParkour extends JavaPlugin implements Listener {
             && ev.getClickedBlock().getLocation().getZ() == getConfig().getInt("StartPlateZ")) { //Start plate coords
                 if (s == null) //No session, create session
                 {
-                    //Add player to parkour sessions:
-                    sessions.put(ev.getPlayer().getName(), new ParkourSession(new Location(ev.getClickedBlock().getWorld(), getConfig().getLong("FirstSpawnX"), getConfig().getLong("FirstSpawnY"), getConfig().getLong("FirstSpawnZ"))));
-                    //Add exit barrier to player's hotbar:
-                    ev.getPlayer().getInventory().setItem(8, barrier);
+                    StartParkourSession(ev.getPlayer(), ev);
                 }
             }
             //End plate coords check:
@@ -129,11 +153,7 @@ public final class SimpleHubParkour extends JavaPlugin implements Listener {
                     String chronoFormat = sdf.format(new Date(sessions.get(ev.getPlayer().getName()).stopwatch.elapsed(TimeUnit.MILLISECONDS)));
                     ev.getPlayer().sendMessage(PlaceholderManager.SubstitutePlaceholders(getConfig().getString("ParkourEndMessage"), chronoFormat, sessions.get(ev.getPlayer().getName()).falls));
 
-                    //Remove player from parkour sessions:
-                    sessions.remove(ev.getPlayer().getName());
-
-                    //Remove exit barrier from player's hotbar:
-                    ev.getPlayer().getInventory().removeItem(barrier);
+                    TerminateParkourSession(ev.getPlayer());
                 }
             }
         }
@@ -153,16 +173,12 @@ public final class SimpleHubParkour extends JavaPlugin implements Listener {
         //Right click while holding barrier:
         if(ev.getPlayer().getInventory().getItemInMainHand().equals(barrier))
         {
-            getServer().getPlayer("__Mithrandir__").sendMessage("holding barrier");
             if(ev.getAction() == Action.RIGHT_CLICK_AIR || ev.getAction() == Action.RIGHT_CLICK_BLOCK) {
                 ParkourSession s = sessions.get(ev.getPlayer().getName());
                 if (s != null) {
-                    //Remove barrier item:
-                    ev.getPlayer().getInventory().removeItem(barrier);
+                    TerminateParkourSession(ev.getPlayer());
                     //Send to first spawn:
                     ev.getPlayer().teleport(new Location(ev.getPlayer().getWorld(), getConfig().getLong("FirstSpawnX"), getConfig().getLong("FirstSpawnY"), getConfig().getLong("FirstSpawnZ")));
-                    //Remove player from parkour sessions:
-                    sessions.remove(ev.getPlayer().getName());
                 }
             }
         }
@@ -171,6 +187,10 @@ public final class SimpleHubParkour extends JavaPlugin implements Listener {
     @EventHandler
     public void PlayerLeftServerEvent(PlayerQuitEvent ev)
     {
-        sessions.remove(ev.getPlayer().getName()); //Player removed from hashmap if left server
+        if(sessions.get(ev.getPlayer().getName()) != null) {
+            TerminateParkourSession(ev.getPlayer());
+            //Send to first spawn:
+            ev.getPlayer().teleport(new Location(ev.getPlayer().getWorld(), getConfig().getLong("FirstSpawnX"), getConfig().getLong("FirstSpawnY"), getConfig().getLong("FirstSpawnZ")));
+        }
     }
 }
