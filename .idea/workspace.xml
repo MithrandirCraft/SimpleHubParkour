@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a8a71628-2bce-4c25-aa4e-54a070767093" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/es/mithrandircraft/simplehubparkour/SimpleHubParkour.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/es/mithrandircraft/simplehubparkour/SimpleHubParkour.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/SimpleHubParkour-1.0-SNAPSHOT-shaded.jar" beforeDir="false" afterPath="$PROJECT_DIR$/target/SimpleHubParkour-1.0-SNAPSHOT-shaded.jar" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/SimpleHubParkour-1.0-SNAPSHOT.jar" beforeDir="false" afterPath="$PROJECT_DIR$/target/SimpleHubParkour-1.0-SNAPSHOT.jar" afterDir="false" />

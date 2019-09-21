@@ -66,7 +66,7 @@ public final class SimpleHubParkour extends JavaPlugin implements Listener {
     {
         //Disable flight for player:
         p.setAllowFlight(false);
-        getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "lp user " + p.getName() + " permission set -essentials.fly");
+        getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "lp user " + p.getName() + " permission set essentials.fly false world=hub");
         //Add player to parkour sessions:
         sessions.put(p.getName(), new ParkourSession(new Location(e.getClickedBlock().getWorld(), getConfig().getLong("FirstSpawnX"), getConfig().getLong("FirstSpawnY"), getConfig().getLong("FirstSpawnZ"))));
         //Add exit barrier to player's hotbar:
@@ -76,7 +76,7 @@ public final class SimpleHubParkour extends JavaPlugin implements Listener {
     public void TerminateParkourSession(Player p)
     {
         //Allow flight:
-        getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "lp user " + p.getName() + " permission unset -essentials.fly");
+        getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "lp user " + p.getName() + " permission unset essentials.fly world=hub");
         //Remove barrier item:
         p.getInventory().removeItem(barrier);
         if(p.getEquipment().getHelmet() != null && p.getEquipment().getHelmet().equals(barrier)) p.getEquipment().setHelmet(null);
