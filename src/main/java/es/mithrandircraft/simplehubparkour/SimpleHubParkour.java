@@ -18,6 +18,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public final class SimpleHubParkour extends JavaPlugin implements Listener {
@@ -92,8 +94,11 @@ public final class SimpleHubParkour extends JavaPlugin implements Listener {
             @Override
             public void run()
             {
-                for (HashMap.Entry<String, ParkourSession> entry : sessions.entrySet()) { //Iterates all parkour session entries
-                    Material u = getServer().getPlayer(entry.getKey()).getLocation().getBlock().getRelative(BlockFace.DOWN).getType();
+                Set sessionsKeySet = sessions.keySet();
+                Iterator sessionsIterator = sessionsKeySet.iterator();
+                while (sessionsIterator.hasNext()) {
+                    String key = (String) sessionsIterator.next();
+                    Material u = getServer().getPlayer(key).getLocation().getBlock().getRelative(BlockFace.DOWN).getType();
                     int listSize = getConfig().getStringList("ParkourValidBlocks").size();
                     boolean respawn = true;
                     for(int i = 0; i < listSize; i++){ //Check if session player is on top of a valid block
@@ -104,14 +109,14 @@ public final class SimpleHubParkour extends JavaPlugin implements Listener {
                     }
                     if(respawn)
                     {
-                        entry.getValue().addFall();
-                        getServer().getPlayer(entry.getKey()).teleport(entry.getValue().savePoint); //Back to last spawnpoint
-                        getServer().getPlayer(entry.getKey()).playSound(getServer().getPlayer(entry.getKey()).getLocation(), Sound.BLOCK_END_PORTAL_FRAME_FILL, 1, 10);
-                        if(entry.getValue().savePoint.getX() == getConfig().getLong("FirstSpawnX")
-                        && entry.getValue().savePoint.getY() == getConfig().getLong("FirstSpawnY")
-                        && entry.getValue().savePoint.getZ() == getConfig().getLong("FirstSpawnZ")) { //It's first spawnpoint
+                        sessions.get(key).addFall();
+                        getServer().getPlayer(key).teleport(sessions.get(key).savePoint); //Back to last spawnpoint
+                        getServer().getPlayer(key).playSound(getServer().getPlayer(key).getLocation(), Sound.BLOCK_END_PORTAL_FRAME_FILL, 1, 10);
+                        if(sessions.get(key).savePoint.getX() == getConfig().getLong("FirstSpawnX")
+                            && sessions.get(key).savePoint.getY() == getConfig().getLong("FirstSpawnY")
+                            && sessions.get(key).savePoint.getZ() == getConfig().getLong("FirstSpawnZ")) { //It's first spawnpoint
 
-                            TerminateParkourSession(getServer().getPlayer(entry.getKey()));
+                            TerminateParkourSession(getServer().getPlayer(key));
                         }
                     }
                 }
