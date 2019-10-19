@@ -1,31 +1,35 @@
 #------------------------------------------------------------------------------------------------------
 #                            SIMPLE HUB PARKOUR (SHP) - by __Mithrandir__
 #
-#    Config version 1.0
-#    Disclaimer: This is a small scoped and lightweight plugin intended mainly for
-#    bungeecord hubs.
+#    Disclaimer: This is a small scoped and lightweight plugin intended for bungeecord hubs.
 #    Only one single parkour can be made in a server, with infinite save points, for simplicity.
 #------------------------------------------------------------------------------------------------------
 
-#The default values should be on the list, since the plugin checks what block is underneath the player.
+#The default values should be on the following list, since the plugin checks what block is underneath the player.
 #Just add your own additional blocks for the parkour course. All other blocks will cause players to respawn.
 ParkourValidBlocks:
   - 'AIR'
   - 'HEAVY_WEIGHTED_PRESSURE_PLATE'
   - 'LIGHT_WEIGHTED_PRESSURE_PLATE'
 
-#Add 0.5 for center of your block coordinates. You can find exact block coordinates with f3, but you'll probably want one block higher in this case.
+#Coordinates for the first respawnpoint. Add 0.5 if you want the center of the block in coordinates.
+#You can find exact block coordinates with f3, but you'll probably want one block higher in this case:
 FirstSpawnX: 0.5
 FirstSpawnY: 0.5
 FirstSpawnZ: 0.5
 
+#Coordinates for the first iron pressure plate which marks the parkour start:
 StartPlateX: 1
 StartPlateY: 1
 StartPlateZ: 1
 
+#Coordinates for the second iron pressure plate which mark the parkour end:
 EndPlateX: 2
 EndPlateY: 2
 EndPlateZ: 2
+
+#Should SimpleParkour deny usage of /fly during parkour?
+DenyFlight: true
 
 ParkourStartMessage: "Parkour started, Right click while holding barrier to leave."
 ParkourRespawnMessage: "You respawned. Right click while holding barrier if you wish to leave the parkour."

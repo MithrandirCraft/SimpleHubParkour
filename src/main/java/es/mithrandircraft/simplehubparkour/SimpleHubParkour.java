@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
@@ -66,9 +67,8 @@ public final class SimpleHubParkour extends JavaPlugin implements Listener {
 
     public void StartParkourSession(Player p, PlayerInteractEvent e)
     {
-        //Disable flight for player:
-        p.setAllowFlight(false);
-        getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "lp user " + p.getName() + " permission set essentials.fly false world=hub");
+        //Disable flying for player:
+        if(getConfig().getBoolean("DenyFlight")) p.setAllowFlight(false);
         //Add player to parkour sessions:
         sessions.put(p.getName(), new ParkourSession(new Location(e.getClickedBlock().getWorld(), getConfig().getLong("FirstSpawnX"), getConfig().getLong("FirstSpawnY"), getConfig().getLong("FirstSpawnZ"))));
         //Add exit barrier to player's hotbar:
@@ -77,8 +77,6 @@ public final class SimpleHubParkour extends JavaPlugin implements Listener {
 
     public void TerminateParkourSession(Player p)
     {
-        //Allow flight:
-        getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "lp user " + p.getName() + " permission unset essentials.fly world=hub");
         //Remove barrier item:
         p.getInventory().removeItem(barrier);
         if(p.getEquipment().getHelmet() != null && p.getEquipment().getHelmet().equals(barrier)) p.getEquipment().setHelmet(null);
@@ -193,5 +191,10 @@ public final class SimpleHubParkour extends JavaPlugin implements Listener {
             //Send to first spawn:
             ev.getPlayer().teleport(new Location(ev.getPlayer().getWorld(), getConfig().getLong("FirstSpawnX"), getConfig().getLong("FirstSpawnY"), getConfig().getLong("FirstSpawnZ")));
         }
+    }
+
+    @EventHandler
+    public void PlayerCommandPreprocess(PlayerCommandPreprocessEvent ev){
+        if(ev.getMessage().equals("/fly") && getConfig().getBoolean("DenyFlight") && sessions.containsKey(ev.getPlayer().getName())) ev.setCancelled(true); //Cancel /fly attempts if in parkour session
     }
 }
