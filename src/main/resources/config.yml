@@ -38,4 +38,4 @@ ParkourCheckpointMessage: "Respawn point established."
 #Available placeholders for ParkourEndMessage: {time}, {falls}
 ParkourEndMessage: "Congratulations! You have beaten the parkour in {time} with {falls} falls."
 
-ExitBarrierName: "Right click leave"
+ExitBoneName: "Right click leave"
