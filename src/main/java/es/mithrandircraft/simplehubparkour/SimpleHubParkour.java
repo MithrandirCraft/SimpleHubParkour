@@ -31,9 +31,9 @@ public final class SimpleHubParkour extends JavaPlugin implements Listener {
     //Time format:
     SimpleDateFormat sdf = new SimpleDateFormat("mm:ss");
 
-    //Exit barrier stack configuration:
-    ItemStack barrier;
-    ItemMeta barrierMeta;
+    //Exit bone stack configuration:
+    ItemStack bone;
+    ItemMeta boneMeta;
 
     @Override
     public void onEnable() {
@@ -50,11 +50,11 @@ public final class SimpleHubParkour extends JavaPlugin implements Listener {
         //Runnables:
         SessionsRunnable();
 
-        //Exit barrier stack initialization:
-        barrier = new ItemStack(Material.BARRIER, 1);
-        barrierMeta = barrier.getItemMeta();
-        barrierMeta.setDisplayName(ChatColor.YELLOW + getConfig().getString("ExitBarrierName"));
-        barrier.setItemMeta(barrierMeta);
+        //Exit bone stack initialization:
+        bone = new ItemStack(Material.BONE, 1);
+        boneMeta = bone.getItemMeta();
+        boneMeta.setDisplayName(ChatColor.YELLOW + getConfig().getString("ExitBoneName"));
+        bone.setItemMeta(boneMeta);
     }
 
     @Override
@@ -71,16 +71,16 @@ public final class SimpleHubParkour extends JavaPlugin implements Listener {
         if(getConfig().getBoolean("DenyFlight")) p.setAllowFlight(false);
         //Add player to parkour sessions:
         sessions.put(p.getName(), new ParkourSession(new Location(e.getClickedBlock().getWorld(), getConfig().getLong("FirstSpawnX"), getConfig().getLong("FirstSpawnY"), getConfig().getLong("FirstSpawnZ"))));
-        //Add exit barrier to player's hotbar:
-        p.getInventory().setItem(8, barrier);
+        //Add exit bone to player's hotbar:
+        p.getInventory().setItem(8, bone);
     }
 
     public void TerminateParkourSession(Player p)
     {
-        //Remove barrier item:
-        p.getInventory().removeItem(barrier);
-        if(p.getEquipment().getHelmet() != null && p.getEquipment().getHelmet().equals(barrier)) p.getEquipment().setHelmet(null);
-        if(p.getEquipment().getItemInOffHand().equals(barrier)) p.getEquipment().setItemInOffHand(null);
+        //Remove bone item:
+        p.getInventory().removeItem(bone);
+        if(p.getEquipment().getHelmet() != null && p.getEquipment().getHelmet().equals(bone)) p.getEquipment().setHelmet(null);
+        if(p.getEquipment().getItemInOffHand().equals(bone)) p.getEquipment().setItemInOffHand(null);
         //Remove player from parkour sessions:
         sessions.remove(p.getName()); //Player removed from hashmap if left server
     }
@@ -169,8 +169,8 @@ public final class SimpleHubParkour extends JavaPlugin implements Listener {
             }
         }
 
-        //Right click while holding barrier:
-        if(ev.getPlayer().getInventory().getItemInMainHand().equals(barrier))
+        //Right click while holding bone:
+        if(ev.getPlayer().getInventory().getItemInMainHand().equals(bone))
         {
             if(ev.getAction() == Action.RIGHT_CLICK_AIR || ev.getAction() == Action.RIGHT_CLICK_BLOCK) {
                 ParkourSession s = sessions.get(ev.getPlayer().getName());
